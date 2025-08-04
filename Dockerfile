@@ -29,5 +29,5 @@ COPY --from=build /app/target/art_gal-0.0.1-SNAPSHOT.jar app.jar
 # Mở cổng 8086 của container.
 EXPOSE 8086
 
-# Lệnh sẽ được thực thi khi container được khởi động.
+# Lệnh sẽ được thực thi khi container được khởi động
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -52,7 +52,7 @@ pipeline {
         }
     }
 
-    // Các hành động sẽ được thực hiện sau khi pipeline kết thúc
+    // Các hành động sẽ được thực hiện sau khi pipeline kết thúcc.
     post {
         always {
             echo 'Hoàn tất, đang đăng xuất khỏi Docker Hub.'
