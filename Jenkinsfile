@@ -9,7 +9,7 @@ pipeline {
         // Lấy thông tin đăng nhập từ Credentials đã lưu trong Jenkins
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') 
         // Thay 'your-dockerhub-username' bằng tên tài khoản Docker Hub của bạn
-        DOCKER_IMAGE_NAME = "your-dockerhub-username/art-gallery-backend" 
+        DOCKER_IMAGE_NAME = "quangtb7/art-gallery-backend" 
     }
 
     // Định nghĩa các giai đoạn (stages) của pipeline
