@@ -1,0 +1,15 @@
+# Git
+.git
+.gitignore
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Google Secret (QUAN TRỌNG!)
+serviceAccountKey.json
+
+# IDE
+.idea/
+.vscode/
+*.iml
