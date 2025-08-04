@@ -1,0 +1,99 @@
+# Ghi chú: Thuộc tính 'version' không còn cần thiết trong các phiên bản Docker Compose mới.
+
+services:
+  # -------------------------------------------
+  # DỊCH VỤ CƠ SỞ DỮ LIỆU (MYSQL)
+  # -------------------------------------------
+  db:
+    # Sử dụng image chính thức của MySQL phiên bản 8.0
+    image: mysql:8.0
+    # Đặt tên cho container để dễ quản lý
+    container_name: mysql_db
+    # Cấu hình các biến môi trường cho container MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234 # Mật khẩu root cho MySQL, khớp với mật khẩu bạn cung cấp
+      MYSQL_DATABASE: art_gallery # Tự động tạo một database tên là 'art_gallery' khi khởi động
+    ports:
+      # Ánh xạ cổng 3307 của máy tính bạn vào cổng 3306 bên trong container.
+      # Điều này tránh xung đột nếu bạn đang chạy một MySQL khác trên máy ở cổng 3306.
+      - "3307:3306"
+    volumes:
+      # Gắn một volume tên là 'mysql_data' vào container.
+      # Giúp dữ liệu của database được lưu lại kể cả khi container bị xóa và tạo lại.
+      - mysql_data:/var/lib/mysql
+    networks:
+      # Kết nối service này vào mạng chung 'art-gallery-net'
+      - art-gallery-net
+    # Tự động khởi động lại container trừ khi bạn chủ động dừng nó
+    restart: unless-stopped
+
+  # -------------------------------------------
+  # DỊCH VỤ BACKEND (ỨNG DỤNG SPRING BOOT)
+  # -------------------------------------------
+  art-gallery-backend:
+    # Sử dụng image mà bạn đã build và đẩy lên Docker Hub
+    image: quangtb7/art-gallery-backend:latest
+    container_name: art-gallery-backend
+    ports:
+      # Ánh xạ cổng 8086 của máy tính bạn vào cổng 8086 của container
+      - "8086:8086"
+    volumes:
+      # Gắn file secret từ máy thật của bạn vào bên trong container
+      # Hãy đảm bảo đường dẫn 'C:\docker-secrets\serviceAccountKey.json' là chính xác
+      - C:\docker-secrets\serviceAccountKey.json:/app/serviceAccountKey.json
+    environment:
+      # Cung cấp các biến môi trường cho ứng dụng Spring Boot
+      # Ghi đè lên file application.properties
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/art_gallery?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234 # Mật khẩu phải khớp với MYSQL_ROOT_PASSWORD ở trên
+      - SPRING_APPLICATION_JSON={"app.firebase-service-account-key-path":"/app/serviceAccountKey.json"}
+    depends_on:
+      # Yêu cầu Docker khởi động và đợi service 'db' chạy ổn định trước khi khởi động service này
+      - db
+    networks:
+      # Kết nối service này vào mạng chung 'art-gallery-net'
+      - art-gallery-net
+    restart: unless-stopped
+
+  # -------------------------------------------
+  # DỊCH VỤ GIÁM SÁT (PROMETHEUS)
+  # -------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      # Gắn file cấu hình prometheus.yml từ thư mục hiện tại vào trong container
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      # Ra lệnh cho Prometheus sử dụng file cấu hình mà chúng ta đã cung cấp
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - art-gallery-net
+    restart: unless-stopped
+
+  # -------------------------------------------
+  # DỊCH VỤ HIỂN THỊ (GRAFANA)
+  # -------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - art-gallery-net
+    restart: unless-stopped
+
+# -------------------------------------------
+# CẤU HÌNH MẠNG VÀ VOLUME
+# -------------------------------------------
+# Định nghĩa mạng chung cho tất cả các service ở trên
+networks:
+  art-gallery-net:
+    driver: bridge
+
+# Định nghĩa volume để lưu trữ dữ liệu của MySQL
+volumes:
+  mysql_data:
