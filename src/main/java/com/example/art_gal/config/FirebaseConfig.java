@@ -24,8 +24,10 @@ public class FirebaseConfig {
         // Nếu đường dẫn được cấu hình (khi chạy trên server), đọc file từ đường dẫn đó.
         // Ngược lại (khi dev local), vẫn đọc từ classpath như cũ để không ảnh hưởng dev.
         if (serviceAccountKeyPath != null && !serviceAccountKeyPath.isEmpty()) {
+            System.out.println("Loading Firebase service account from path: " + serviceAccountKeyPath);
             serviceAccount = new FileInputStream(serviceAccountKeyPath);
         } else {
+            System.out.println("Loading Firebase service account from classpath: serviceAccountKey.json");
             serviceAccount = new ClassPathResource("serviceAccountKey.json").getInputStream();
         }
 
