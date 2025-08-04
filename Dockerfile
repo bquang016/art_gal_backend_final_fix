@@ -23,8 +23,8 @@ FROM openjdk:21-jdk-slim
 # Thiết lập thư mục làm việc.
 WORKDIR /app
 
-# Sao chép file .jar đã được build ở giai đoạn 1 vào image này.
-COPY --from=build /app/target/*.jar app.jar
+# ✅ SỬA LỖI: Chỉ định chính xác tên file .jar cần sao chép
+COPY --from=build /app/target/art_gal-0.0.1-SNAPSHOT.jar app.jar
 
 # Mở cổng 8086 của container.
 EXPOSE 8086
